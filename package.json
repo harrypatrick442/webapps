@@ -1,11 +1,47 @@
 {
-  "name": "webapps",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC"
+	"name": "webapps",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/harrypatrick442/webapps.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/harrypatrick442/webapps/issues"
+	},
+	"homepage": "https://github.com/harrypatrick442/webapps#readme",
+	"dependencies": {
+		"adult_profiles": "^1.0.0",
+		"bluebird": "^3.7.1",
+		"cache": "^1.0.0",
+		"client": "^1.0.0",
+		"core": "^1.0.0",
+		"dal": "^1.0.0",
+		"enums": "^1.0.0",
+		"express": "^4.17.1",
+		"file_system": "^1.0.0",
+		"file_transfer": "^1.0.0",
+		"github_automation": "^1.0.0",
+		"helpers": "^1.0.0",
+		"hosts": "^1.0.0",
+		"interserver_communication": "^1.0.0",
+		"lifecycle": "^1.0.0",
+		"load_balancing": "^1.0.0",
+		"log": "^1.0.0",
+		"middleware": "^1.0.0",
+		"multimedia": "^1.0.0",
+		"mysocket": "^1.0.0",
+		"precompilation": "^1.0.0",
+		"repositories_helper": "^1.0.0",
+		"shutdown": "^1.0.0",
+		"spritesheet": "^1.0.0",
+		"strings": "^1.0.0",
+		"watchdog": "^1.0.0"
+	}
 }

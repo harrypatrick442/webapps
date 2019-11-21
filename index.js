@@ -17,12 +17,12 @@
 		oldLog(new Error().stack.substr(0, 200));
 	};*/
 	const SIZE_LIMIT_MB=2.5;
-	const config = require('./configuration/Configuration');
+	const config = require('./backend/Configuration');
+	const Core = require('core');
 	if(config.getDebug().getFilePathCase())
 		Core.CaseSensitiveRequire;
 	const path = require('path');
 	const domain = config.getDomain();
-	const Core = require('core');
 	Core.Linq;
 	Core.RootPath.initialize();
 	const Timer =Core.Timer;
@@ -72,7 +72,7 @@
 	const FileDistributionWorker = FileSystem.FileDistributionWorker;
 	const VideoProcessor =  Multimedia.VideoProcessor;
 	
-	
+	const PornSite = require('pornsite');
 	const administratorHandler = require('./administrator/Handler');
 	const Administrator = require('./administrator/Administrator');
 	const Application = require('./app/Application');

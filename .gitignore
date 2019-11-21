@@ -71,3 +71,5 @@ node_modules
 backend/node_modules/.git
 node_modules/.git
 files
+node_modules/file_transfer
+node_modules/log
