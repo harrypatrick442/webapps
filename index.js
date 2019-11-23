@@ -17,7 +17,7 @@ global.console.log=function(msg){
 	oldLog(new Error().stack.substr(0, 200));
 };*/
 const SIZE_LIMIT_MB=2.5;
-const config = require('./backend/Configuration');
+const config = require('configuration');
 const Core = require('core');
 if(config.getDebug().getFilePathCase())
 	Core.CaseSensitiveRequire;
@@ -51,6 +51,8 @@ const Watchdog = require('watchdog');
 
 const CacheConfiguration = Cache.CacheConfiguration;
 CacheConfiguration.setGlobal(config.getCache());
+const loadBalancingConfiguration = config.getLoadBalancing().getClientData();
+const useLocal = loadBalancingConfiguration.getUseLocal();
 const WatchdogClient = Watchdog.WatchdogClient;
 const users = new (Client.Users)();
 const UsersRouter = Client.UsersRouter;
@@ -124,11 +126,21 @@ function createApp(hosts, hostMe){
 		response.json(res);
 	});
 	if(hostMe.getPageAssets()){
-		app.get('/endpoints',function(req,res,next){
-			if(clientDataOrchestratorClient)
-				res.send(clientDataOrchestratorClient.getEndpointsString());
-			else res.end();
-		});
+		if(useLocal){
+			var endpointLocal = JSON.stringify({localhost:1});
+			app.get('/endpoints',function(req, res, next){
+				console.log(endpointLocal);
+				res.send(endpointLocal);
+			});
+		}
+		else
+		{
+			app.get('/endpoints',function(req,res,next){
+				if(clientDataOrchestratorClient)
+					res.send(clientDataOrchestratorClient.getEndpointsString());
+				else res.end();
+			});
+		}
 	}
 	if(config.getPrecompiledFrontend())
 	{
@@ -183,8 +195,7 @@ if(hostMe.getOrchestrator()){
 	ClientDataOrchestratorServer.initialize(hosts, hostMe.getId(), config.getLoadBalancing().getClientData());
 }
 if(hostMe.getClientData()||hostMe.getPageAssets()){
-	
-	const loadBalancingConfiguration = config.getLoadBalancing().getClientData();
+	console.log(loadBalancingConfiguration);
 	clientDataOrchestratorClient = new ClientDataOrchestratorClient(mysocketsApp.getNConnections, hosts, hostMe, loadBalancingConfiguration, config.getDomain());
 }
 //var fileReceiverMultimedia = new FileReceiver(app,);
@@ -206,8 +217,8 @@ var fileTransferClientTest = new FileTransferClient({port:ssh2Port});
 	fileTransferClientTest.transfer('./ColourMyWorld.mp4','./ColourMyWorld2.mp4','46.105.84.139', function(){console.log('successful transfer');}, function(){console.log('transfer failed');});
 }, 10000);*/
 UsersRouter.initialize(users, config.getInterserver().getLogPath());
-Administrator.initialize(UsersRouter);
-Application.initialize(UsersRouter);
+Administrator.initialize(config);
+Application.initialize(config);
 var interserverTestHandler = new InterserverTestHandler();
 server.setTimeout(5000, function(r){
 	
