@@ -178,7 +178,7 @@ MysocketEndpointWebsocket(mysocketsApp, app, server, '/app/endpoint_websocket');
 MysocketEndpointLongpoll(mysocketsApp, app, '/app/endpoint_longpoll');
 var multimediaHandler = new MultimediaHandler(app, config.getMultimedia().getUrlPath());
 if(hostMe.getOrchestrator()){
-	ClientDataOrchestratorServer.initialize(hosts, hostMe.getId(), config.getLoadBalancing());
+	ClientDataOrchestratorServer.initialize(hosts, hostMe.getId(), config.getLoadBalancing().getClientData());
 }
 if(hostMe.getClientData()||hostMe.getPageAssets()){
 	
