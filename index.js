@@ -65,6 +65,7 @@ const ClientDataOrchestratorServer = LoadBalancing.ClientDataOrchestratorServer;
 const ClientDataOrchestratorClient = LoadBalancing.ClientDataOrchestratorClient;
 const PageAssetsOrchestrator = LoadBalancing.PageAssetsOrchestrator;
 const MultimediaHandler = Multimedia.MultimediaHandler; 
+const DalMultimedia = Multimedia.DalMultimedia;
 const ShutdownManager = Shutdown.ShutdownManager;
 const DalHosts = Hosts.DalHosts;
 const HostHelper = Hosts.HostHelper;
@@ -87,6 +88,7 @@ const filePathIndex = path.join(__dirname, '/../pornsite/frontend/pages/index.ht
 const filePathIndexPrecompiled = path.join(__dirname, '/../pornsite/frontend/precompiled/index.html');
 
 DalHosts.initialize(config.getDatabase());
+DalMultimedia.initialize(config.getDatabase());
 HostHelper.getAndUpdateMe().then(function(hostMe){
 	HostHelper.getHosts().then(function(hosts){
 		createApp(hosts, hostMe);
