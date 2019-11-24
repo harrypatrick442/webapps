@@ -44,6 +44,7 @@
 		"shutdown": "^1.0.0",
 		"spritesheet": "^1.0.0",
 		"strings": "^1.0.0",
+		"tippler_ui": "^1.0.0",
 		"watchdog": "^1.0.0"
 	}
 }

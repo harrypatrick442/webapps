@@ -16,9 +16,11 @@ global.console.log=function(msg){
 	//access.write(String(msg.stack?msg.stack:msg));
 	oldLog(new Error().stack.substr(0, 200));
 };*/
+console.log('a');
 const SIZE_LIMIT_MB=2.5;
 const config = require('configuration');
 const Core = require('core');
+const TipplerUi = require('tippler_ui');
 if(config.getDebug().getFilePathCase())
 	Core.CaseSensitiveRequire;
 const path = require('path');
@@ -37,18 +39,22 @@ const CORS = require('middleware').CORS;
 const Client = require('client');
 const Mysocket = require('mysocket');
 const Enums = require('enums');
+console.log('b');
 const InterserverCommunication=require('interserver_communication');
 const GithubAutomation = require('github_automation');
 const Log = require('log');
+console.log('b22');
 const LoadBalancing = require('load_balancing');
+console.log('b33');
 const Shutdown = require('shutdown');
+console.log('b44');
 const Hosts = require('hosts');
 const FileTransfer = require('file_transfer');
 const FileSystem = require('file_system');
 const Lifecycle = require('lifecycle');
 const Multimedia = require('multimedia');
+const MultimediaHelper = Multimedia.MultimediaHelper;
 const Watchdog = require('watchdog');
-
 const CacheConfiguration = Cache.CacheConfiguration;
 CacheConfiguration.setGlobal(config.getCache());
 const loadBalancingConfiguration = config.getLoadBalancing().getClientData();
@@ -60,8 +66,10 @@ const Mysockets = Mysocket.Mysockets;
 const MysocketEndpointWebsocket= Mysocket.MysocketEndpointWebsocket;
 const MysocketEndpointLongpoll= Mysocket.MysocketEndpointLongpoll;
 const Router = InterserverCommunication.Router;
+const ItemRouter = InterserverCommunication.ItemRouter;
 const InterserverTestHandler = InterserverCommunication.TestHandler;
 const interserverConfiguration = config.getInterserver();
+console.log('b2');
 const GithubHandler = GithubAutomation.GithubHandler;
 const ClientDataOrchestratorServer = LoadBalancing.ClientDataOrchestratorServer;
 const ClientDataOrchestratorClient = LoadBalancing.ClientDataOrchestratorClient;
@@ -74,23 +82,29 @@ const HostHelper = Hosts.HostHelper;
 const HostTypes = Enums.HostTypes;
 const FileTransferServer = FileTransfer.FileTransferServer;
 const FileTransferClient = FileTransfer.FileTransferClient;
+
 const FileDistributionManagerHandler = FileTransfer.FileDistributionManagerHandler;
 const FileDistributionWorker = FileSystem.FileDistributionWorker;
+const DalFileSystem = FileSystem.DalFileSystem;
 const VideoProcessor =  Multimedia.VideoProcessor;
-
+const AdultProfiles = require('adult_profiles');
+const DalProfiles = AdultProfiles.DalProfiles;
+console.log('c');
 const Pornsite = require('pornsite');
 const administratorHandler = Pornsite.AdministratorHandler;
 const Administrator = Pornsite.Administrator;
+ItemRouter.initialize(config.getInterserver());
 const ApplicationHandler = Pornsite.ApplicationHandler;
 const Application = Pornsite.Application;
-
 const precompiledFrontend = config.getPrecompiledFrontend();
 const frontendFolder = path.join(__dirname, '../pornsite/frontend');
 const filePathIndex = path.join(__dirname, '/../pornsite/frontend/pages/index.html');
 const filePathIndexPrecompiled = path.join(__dirname, '/../pornsite/frontend/precompiled/index.html');
-
+DalFileSystem.initialize(config.getDatabase());
 DalHosts.initialize(config.getDatabase());
+DalProfiles.initialize(config.getDatabase());
 DalMultimedia.initialize(config.getDatabase());
+MultimediaHelper.initialize(config);
 HostHelper.getAndUpdateMe().then(function(hostMe){
 	HostHelper.getHosts().then(function(hosts){
 		createApp(hosts, hostMe);
@@ -148,7 +162,7 @@ function createApp(hosts, hostMe){
 	}
 	else
 	{
-		[Core, Enums, Mysocket, Strings, Helpers, Pornsite].forEach(function(repository){
+		[TipplerUi, Core, Enums, Mysocket, Strings, Helpers, Pornsite].forEach(function(repository){
 			var scriptsAbsolutePath = repository.getScriptsAbsolutePath(rootPath);
 			console.log(scriptsAbsolutePath);
 			app.use(express.static(scriptsAbsolutePath));
@@ -216,7 +230,7 @@ var fileTransferClientTest = new FileTransferClient({port:ssh2Port});
 /*setTimeout(function(){
 	fileTransferClientTest.transfer('./ColourMyWorld.mp4','./ColourMyWorld2.mp4','46.105.84.139', function(){console.log('successful transfer');}, function(){console.log('transfer failed');});
 }, 10000);*/
-UsersRouter.initialize(users, config.getInterserver().getLogPath());
+UsersRouter.initialize(users);
 Administrator.initialize(config);
 Application.initialize(config);
 var interserverTestHandler = new InterserverTestHandler();
