@@ -84,7 +84,7 @@ const FileTransferServer = FileTransfer.FileTransferServer;
 const FileTransferClient = FileTransfer.FileTransferClient;
 
 const FileDistributionManagerHandler = FileTransfer.FileDistributionManagerHandler;
-const FileDistributionWorker = FileSystem.FileDistributionWorker;
+const FileDistributionWorker = FileTransfer.FileDistributionWorker;
 const DalFileSystem = FileSystem.DalFileSystem;
 const VideoProcessor =  Multimedia.VideoProcessor;
 const AdultProfiles = require('adult_profiles');
