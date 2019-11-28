@@ -226,7 +226,7 @@ if(hostMe.getPageAssets()){
 }
 const ssh2Port = config.getSSH2().getPort();
 FileTransferServer.initialize(ssh2Port);
-var fileTransferClientTest = new FileTransferClient({port:ssh2Port});
+FileTransferClient.initialize(ssh2Port);
 /*setTimeout(function(){
 	fileTransferClientTest.transfer('./ColourMyWorld.mp4','./ColourMyWorld2.mp4','46.105.84.139', function(){console.log('successful transfer');}, function(){console.log('transfer failed');});
 }, 10000);*/
