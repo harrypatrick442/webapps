@@ -162,7 +162,7 @@ function createApp(hosts, hostMe){
 	}
 	else
 	{
-		[TipplerUi, Core, Enums, Mysocket, Strings, Helpers, Pornsite].forEach(function(repository){
+		[TipplerUi, Core, Enums, Mysocket, Strings, Helpers, Pornsite, Configuration].forEach(function(repository){
 			var scriptsAbsolutePath = repository.getScriptsAbsolutePath(rootPath);
 			console.log(scriptsAbsolutePath);
 			app.use(express.static(scriptsAbsolutePath));
