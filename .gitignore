@@ -75,3 +75,4 @@ node_modules/file_transfer
 node_modules/log
 node_modules/configuration
 node_modules/tippler_ui
+node_modules/polyfills

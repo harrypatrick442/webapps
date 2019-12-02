@@ -31,6 +31,8 @@ const rootPath = Core.RootPath.get();
 const Timer =Core.Timer;
 const UrlHelper = Core.UrlHelper;
 const Helpers= require('helpers');
+const Pms = require('pms');
+const Polyfills = require('polyfills');
 const Strings = require('strings');
 const Cache = require('cache');
 const express = require('express');
@@ -162,10 +164,16 @@ function createApp(hosts, hostMe){
 	}
 	else
 	{
-		[TipplerUi, Core, Enums, Mysocket, Strings, Helpers, Pornsite, Configuration].forEach(function(repository){
+
+		[Polyfills, TipplerUi, Core, Enums, Mysocket, Strings, Helpers, Pornsite, config].forEach(function(repository){
 			var scriptsAbsolutePath = repository.getScriptsAbsolutePath(rootPath);
 			console.log(scriptsAbsolutePath);
 			app.use(express.static(scriptsAbsolutePath));
+		});
+		[TipplerUi, AdultProfiles, Pms, Pornsite].forEach(function(repository){
+			var stylesAbsolutePath = repository.getStylesAbsolutePath(rootPath);
+			console.log(stylesAbsolutePath);
+			app.use(express.static(stylesAbsolutePath));
 		});
 		app.use(express.static(path.join(frontendFolder, '/css')));
 		app.use(express.static(path.join(frontendFolder, '/pages')), function(req, res, next){
