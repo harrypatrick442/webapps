@@ -1,0 +1,30 @@
+* {
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-o-user-select: none;
+user-select:none;
+}
+input[type='text'],
+input[type='password']{
+-webkit-user-select: text;
+-khtml-user-select: text;
+-moz-user-select: text;
+-o-user-select: text;
+user-select:text;
+}
+html, body{
+height:100%;
+margin:0px;
+padding:0px;
+overscroll-behavior-y: none;
+}
+body{
+	background-color:rgb(44, 43, 43);
+}
+button{
+	background-color:transparent;
+	padding: 0;
+	border: none;
+	background: none;
+}
