@@ -28,6 +28,8 @@ const domain = config.getDomain();
 Core.Linq;
 Core.RootPath.initialize();
 const rootPath = Core.RootPath.get();
+console.log('root path is: ');
+console.log( rootPath);
 const Timer =Core.Timer;
 const UrlHelper = Core.UrlHelper;
 const Helpers= require('helpers');
