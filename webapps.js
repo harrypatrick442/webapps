@@ -98,7 +98,7 @@ ItemRouter.initialize(config.getInterserver());
 const ApplicationHandler = Pornsite.ApplicationHandler;
 const Application = Pornsite.Application;
 const precompiledFrontend = config.getPrecompiledFrontend();
-const frontendFolder = path.join(__dirname, '../pornsite/frontend');
+const frontendFolder = path.join(__dirname, '/frontend');
 const filePathIndex = path.join(__dirname, '/../pornsite/frontend/pages/index.html');
 const filePathIndexPrecompiled = path.join(__dirname, '/../pornsite/frontend/precompiled/index.html');
 DalFileSystem.initialize(config.getDatabase());
