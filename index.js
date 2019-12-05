@@ -92,9 +92,12 @@ const FileDistributionWorker = FileTransfer.FileDistributionWorker;
 const DalFileSystem = FileSystem.DalFileSystem;
 const VideoProcessor =  Multimedia.VideoProcessor;
 const AdultProfiles = require('adult_profiles');
+const ProfileHandler = AdultProfiles.ProfileHandler;
 const DalProfiles = AdultProfiles.DalProfiles;
 console.log('c');
 const Pornsite = require('pornsite');
+const Precompilation = require('precompilation');
+const DalPrecompiledSourceFiles= Precompilation.DalPrecompiledSourceFiles;
 const administratorHandler = Pornsite.AdministratorHandler;
 const Administrator = Pornsite.Administrator;
 ItemRouter.initialize(config.getInterserver());
@@ -108,6 +111,7 @@ DalFileSystem.initialize(config.getDatabase());
 DalHosts.initialize(config.getDatabase());
 DalProfiles.initialize(config.getDatabase());
 DalMultimedia.initialize(config.getDatabase());
+DalPrecompiledSourceFiles.initialize(config.getDatabase());
 MultimediaHelper.initialize(config);
 HostHelper.getAndUpdateMe().then(function(hostMe){
 	HostHelper.getHosts().then(function(hosts){
@@ -130,8 +134,6 @@ function createApp(hosts, hostMe){
 	new BodyParser(app, SIZE_LIMIT_MB);
 	new CORS(app, SIZE_LIMIT_MB);
 	app.get('/', function(req, res, next){
-		next();
-		return;
 		console.log('/');
 		if(!pageAssetsOrchestrator||config.getSourceScriptsLocally())return next();
 		pageAssetsOrchestrator.sendIndexPage(res);
@@ -241,8 +243,9 @@ FileTransferClient.initialize(ssh2Port);
 	fileTransferClientTest.transfer('./ColourMyWorld.mp4','./ColourMyWorld2.mp4','46.105.84.139', function(){console.log('successful transfer');}, function(){console.log('transfer failed');});
 }, 10000);*/
 UsersRouter.initialize(users);
-Administrator.initialize(config);
-Application.initialize(config);
+Administrator.initialize(config, users);
+Application.initialize(config, users);
+ProfileHandler.initialize();
 var interserverTestHandler = new InterserverTestHandler();
 server.setTimeout(5000, function(r){
 	
