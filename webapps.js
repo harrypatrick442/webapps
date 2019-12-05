@@ -14,6 +14,7 @@ global.console.error=function(err){
 };
 global.console.log=function(msg){
 	//access.write(String(msg.stack?msg.stack:msg));
+	
 	oldLog(new Error().stack.substr(0, 200));
 };*/
 console.log('a');
