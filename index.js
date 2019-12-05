@@ -118,7 +118,6 @@ HostHelper.getAndUpdateMe().then(function(hostMe){
 var createdServer = false;
 var clientDataOrchestratorClient, pageAssetsOrchestrator;
 
-
 function createApp(hosts, hostMe){
 	var selfHosts = hosts.where(host=>host.getHostType()==HostTypes.SELF_HOSTED).toList();
 	if(config.getConsoleTapEnabled()){
