@@ -233,7 +233,7 @@ Router.get().initialize({
 	configuration:config.getInterserver()
 });
 if(hostMe.getPageAssets()){
-	pageAssetsOrchestrator = new PageAssetsOrchestrator(hosts, hostMe, filePathIndex, filePathIndexPrecompiled, domain, precompiledFrontend, useHttps, config.getGodaddy());
+	pageAssetsOrchestrator = new PageAssetsOrchestrator(hosts, hostMe, filePathIndex, filePathIndexPrecompiled, domain, precompiledFrontend, config.getUseHttps(), config.getGodaddy());
 }
 const ssh2Port = config.getSSH2().getPort();
 FileTransferServer.initialize(ssh2Port);
