@@ -91,8 +91,10 @@ const FileDistributionManagerHandler = FileTransfer.FileDistributionManagerHandl
 const FileDistributionWorker = FileTransfer.FileDistributionWorker;
 const DalFileSystem = FileSystem.DalFileSystem;
 const VideoProcessor =  Multimedia.VideoProcessor;
+ItemRouter.initialize(config.getInterserver());
 const AdultProfiles = require('adult_profiles');
 const ProfileHandler = AdultProfiles.ProfileHandler;
+const ProfileHelper= AdultProfiles.ProfileHelper;
 const DalProfiles = AdultProfiles.DalProfiles;
 console.log('c');
 const Pornsite = require('pornsite');
@@ -100,7 +102,6 @@ const Precompilation = require('precompilation');
 const DalPrecompiledSourceFiles= Precompilation.DalPrecompiledSourceFiles;
 const administratorHandler = Pornsite.AdministratorHandler;
 const Administrator = Pornsite.Administrator;
-ItemRouter.initialize(config.getInterserver());
 const ApplicationHandler = Pornsite.ApplicationHandler;
 const Application = Pornsite.Application;
 const precompiledFrontend = config.getPrecompiledFrontend();
@@ -246,6 +247,7 @@ UsersRouter.initialize(users);
 Administrator.initialize(config, users);
 Application.initialize(config, users);
 ProfileHandler.initialize(users);
+ProfileHelper.initialize(users);
 var interserverTestHandler = new InterserverTestHandler();
 server.setTimeout(5000, function(r){
 	
