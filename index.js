@@ -245,7 +245,7 @@ FileTransferClient.initialize(ssh2Port);
 UsersRouter.initialize(users);
 Administrator.initialize(config, users);
 Application.initialize(config, users);
-ProfileHandler.initialize();
+ProfileHandler.initialize(users);
 var interserverTestHandler = new InterserverTestHandler();
 server.setTimeout(5000, function(r){
 	
