@@ -253,7 +253,7 @@ server.setTimeout(5000, function(r){
 FileDistributionManagerHandler.start();
 if(config.getMultimedia().getDistributionCoordinator()==hostMe.getId())
 	FileDistributionWorker.start(UsersRouter);
-VideoProcessor.notifyHasWaiting();	
+VideoProcessor.notifyHasWaiting();
 //setTimeout(shutdownManager.shutDown, 30000);
 }
 function useHttp(app, callback){
