@@ -114,7 +114,9 @@ DalProfiles.initialize(config.getDatabase());
 DalMultimedia.initialize(config.getDatabase());
 DalPrecompiledSourceFiles.initialize(config.getDatabase());
 MultimediaHelper.initialize(config);
+console.log('d');
 HostHelper.getAndUpdateMe().then(function(hostMe){
+	console.log('e');
 	HostHelper.getHosts().then(function(hosts){
 		createApp(hosts, hostMe);
 	}).catch(error);
