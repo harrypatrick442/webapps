@@ -58,6 +58,7 @@ const FileSystem = require('file_system');
 const Lifecycle = require('lifecycle');
 const Multimedia = require('multimedia');
 const MultimediaHelper = Multimedia.MultimediaHelper;
+const MultimediaCategoriesHelper= Multimedia.MultimediaCategoriesHelper;
 const Watchdog = require('watchdog');
 const CacheConfiguration = Cache.CacheConfiguration;
 CacheConfiguration.setGlobal(config.getCache());
@@ -250,7 +251,7 @@ Administrator.initialize(config, users);
 Application.initialize(config, users);
 ProfileHandler.initialize(users);
 ProfileHelper.initialize(users);
-
+MultimediaCategoriesHelper.initialize(users);
 var interserverTestHandler = new InterserverTestHandler();
 server.setTimeout(5000, function(r){
 	
