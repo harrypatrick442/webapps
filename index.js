@@ -98,6 +98,7 @@ const AdultProfiles = require('adult_profiles');
 const ProfileHandler = AdultProfiles.ProfileHandler;
 const ProfileHelper= AdultProfiles.ProfileHelper;
 const DalProfiles = AdultProfiles.DalProfiles;
+const ProfileRepository = AdultProfiles.ProfileRepository;
 console.log('c');
 const Pornsite = require('pornsite');
 const Precompilation = require('precompilation');
@@ -252,7 +253,7 @@ Administrator.initialize(config, users);
 Application.initialize(config, users);
 ProfileHandler.initialize(users);
 ProfileHelper.initialize(users);
-MultimediaCategoryHelper.initialize(users);
+MultimediaCategoryHelper.initialize(users, ProfileRepository.getByUserIdRaw, ProfileRepository.update);
 var interserverTestHandler = new InterserverTestHandler();
 server.setTimeout(5000, function(r){
 	
