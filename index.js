@@ -193,7 +193,8 @@ function createApp(hosts, hostMe){
 	app.use(express.static(path.join(frontendFolder, '/images')));
 	app.use(config.getMultimedia().getUrlPath(),express.static(path.join(frontendFolder, '/images/uploaded')));
 	app.use(config.getMultimedia().getUrlPath(),express.static(path.join(frontendFolder, '/videos/uploaded')));
-	var watchdogClient= new WatchdogClient(ShutdownManager);
+	const indexPath = path.join(__dirname, '/index.js');
+	var watchdogClient= new WatchdogClient(ShutdownManager, indexPath);
 	var githubHandler = new GithubHandler(app, watchdogClient.restartMe);
 	var timerCreateServerRetry = new Timer({delay:1000, nTicks:-1, callback:function(){
 			config.getUseHttps()?useHttps(app, callback):useHttp(app, callback);
