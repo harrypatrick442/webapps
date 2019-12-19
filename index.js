@@ -190,9 +190,10 @@ function createApp(hosts, hostMe){
 		});
 		
 	}
+	var multimediaConfig = config.getMultimedia();
 	app.use(express.static(path.join(frontendFolder, '/images')));
-	app.use(config.getMultimedia().getUrlPath(),express.static(path.join(frontendFolder, '/images/uploaded')));
-	app.use(config.getMultimedia().getUrlPath(),express.static(path.join(frontendFolder, '/videos/uploaded')));
+	app.use(multimediaConfig.getUrlPath(),express.static(path.join(rootPath, config.getMultimedia().getPictures().getFilePath())));
+	app.use(multimediaConfig.getUrlPath(),express.static(path.join(frontendFolder, config.getMultimedia().getVideos().getFilePath())));
 	const indexPath = path.join(__dirname, '/index.js');
 	var watchdogClient= new WatchdogClient(ShutdownManager, indexPath);
 	var githubHandler = new GithubHandler(app, watchdogClient.restartMe);
