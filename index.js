@@ -175,7 +175,7 @@ function createApp(hosts, hostMe){
 	else
 	{
 
-		[Polyfills, TipplerUi, Core, Enums, Mysocket, Strings, Helpers, Pornsite, config].forEach(function(repository){
+		[Polyfills, TipplerUi, Core, Enums, Mysocket, Strings, Helpers, Pornsite, Pms, config].forEach(function(repository){
 			var scriptsAbsolutePath = repository.getScriptsAbsolutePath(rootPath);
 			console.log(scriptsAbsolutePath);
 			app.use(express.static(scriptsAbsolutePath));
