@@ -12,7 +12,7 @@ global.console.error=function(err){
 	
 	error.write(String(err.stack?err.stack:err));
 	//oldLog(new Error().stack);
-};
+
 global.console.log=function(msg){
 	//access.write(String(msg.stack?msg.stack:msg));
 	oldLog(new Error().stack.substr(0, 200));
@@ -175,7 +175,7 @@ function createApp(hosts, hostMe){
 	else
 	{
 
-		[Polyfills, TipplerUi, Core, Enums, Mysocket, Strings, Helpers, Pornsite, Pms, config].forEach(function(repository){
+		[Polyfills, TipplerUi, Core, Enums, Multimedia, Mysocket, Strings, Helpers, Pornsite, Pms, config].forEach(function(repository){
 			var scriptsAbsolutePath = repository.getScriptsAbsolutePath(rootPath);
 			console.log(scriptsAbsolutePath);
 			app.use(express.static(scriptsAbsolutePath));
