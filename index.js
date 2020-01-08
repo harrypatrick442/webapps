@@ -122,7 +122,9 @@ console.log('d');
 HostHelper.getAndUpdateMe().then(function(hostMe){
 	console.log('e');
 	HostHelper.getHosts().then(function(hosts){
-		createApp(hosts, hostMe);
+		Pms.initialize(config.getPmsDatabase()).then(()=>{
+			createApp(hosts, hostMe);
+		}).catch(error);
 	}).catch(error);
 }).catch(error);
 
