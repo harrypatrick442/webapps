@@ -233,6 +233,7 @@ function serverCreated(app, server, selfHosts, ShutdownManager, hostMe, hosts){
 		clientDataOrchestratorClient = new ClientDataOrchestratorClient(mysocketsApp.getNConnections, hosts, hostMe, loadBalancingConfiguration, config.getDomain());
 	}
 	//var fileReceiverMultimedia = new FileReceiver(app,);
+	UsersRouter.initialize(users);
 	Router.initialize({
 		app:app, 
 		server:server,
@@ -257,7 +258,6 @@ function afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts){
 	/*setTimeout(function(){
 		fileTransferClientTest.transfer('./ColourMyWorld.mp4','./ColourMyWorld2.mp4','46.105.84.139', function(){console.log('successful transfer');}, function(){console.log('transfer failed');});
 	}, 10000);*/
-	UsersRouter.initialize(users);
 	Administrator.initialize(config, users);
 	Application.initialize(config, users);
 	ProfileHandler.initialize(users);
