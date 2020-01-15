@@ -58,6 +58,8 @@ const FileTransfer = require('file_transfer');
 const FileSystem = require('file_system');
 const Lifecycle = require('lifecycle');
 const Multimedia = require('multimedia');
+const ItemRouter = InterserverCommunication.ItemRouter;
+ItemRouter.initialize(config.getInterserver());
 const MultimediaHelper = Multimedia.MultimediaHelper;
 const MultimediaCategoryHelper= Multimedia.MultimediaCategoryHelper;
 const Watchdog = require('watchdog');
@@ -72,7 +74,6 @@ const Mysockets = Mysocket.Mysockets;
 const MysocketEndpointWebsocket= Mysocket.MysocketEndpointWebsocket;
 const MysocketEndpointLongpoll= Mysocket.MysocketEndpointLongpoll;
 const Router = InterserverCommunication.Router;
-const ItemRouter = InterserverCommunication.ItemRouter;
 const InterserverTestHandler = InterserverCommunication.TestHandler;
 const interserverConfiguration = config.getInterserver();
 console.log('b2');
@@ -93,7 +94,6 @@ const FileDistributionManagerHandler = FileTransfer.FileDistributionManagerHandl
 const FileDistributionWorker = FileTransfer.FileDistributionWorker;
 const DalFileSystem = FileSystem.DalFileSystem;
 const VideoProcessor =  Multimedia.VideoProcessor;
-ItemRouter.initialize(config.getInterserver());
 const MultimediaClientUpdateHandler= Multimedia.MultimediaClientUpdateHandler;
 const AdultProfiles = require('adult_profiles');
 const ProfileHandler = AdultProfiles.ProfileHandler;
@@ -217,58 +217,62 @@ function createApp(hosts, hostMe){
 	ShutdownManager.addEventListener('beforeShutdown', timerCreateServerRetry.stop);
 }
 function serverCreated(app, server, selfHosts, ShutdownManager, hostMe, hosts){
-if(createdServer)return;
-createdServer = true;
-ShutdownManager.addServer(server);	
-var mysocketsAdministrator = new Mysockets(administratorHandler);
-var mysocketsApp = new Mysockets(ApplicationHandler);
-MysocketEndpointWebsocket(mysocketsAdministrator, app, server, '/administrator/endpoint_websocket');
-MysocketEndpointLongpoll(mysocketsAdministrator, app, '/administrator/endpoint_longpoll');
-MysocketEndpointWebsocket(mysocketsApp, app, server, '/app/endpoint_websocket');
-MysocketEndpointLongpoll(mysocketsApp, app, '/app/endpoint_longpoll');
-var multimediaHandler = new MultimediaHandler(app, config.getMultimedia().getUrlPath());
-if(hostMe.getOrchestrator()){
-	ClientDataOrchestratorServer.initialize(hosts, hostMe.getId(), config.getLoadBalancing().getClientData());
+	if(createdServer)return;
+	createdServer = true;
+	ShutdownManager.addServer(server);	
+	var mysocketsAdministrator = new Mysockets(administratorHandler);
+	var mysocketsApp = new Mysockets(ApplicationHandler);
+	MysocketEndpointWebsocket(mysocketsAdministrator, app, server, '/administrator/endpoint_websocket');
+	MysocketEndpointLongpoll(mysocketsAdministrator, app, '/administrator/endpoint_longpoll');
+	MysocketEndpointWebsocket(mysocketsApp, app, server, '/app/endpoint_websocket');
+	MysocketEndpointLongpoll(mysocketsApp, app, '/app/endpoint_longpoll');
+	var multimediaHandler = new MultimediaHandler(app, config.getMultimedia().getUrlPath());
+	if(hostMe.getOrchestrator()){
+		ClientDataOrchestratorServer.initialize(hosts, hostMe.getId(), config.getLoadBalancing().getClientData());
+	}
+	if(hostMe.getClientData()||hostMe.getPageAssets()){
+		console.log(loadBalancingConfiguration);
+		clientDataOrchestratorClient = new ClientDataOrchestratorClient(mysocketsApp.getNConnections, hosts, hostMe, loadBalancingConfiguration, config.getDomain());
+	}
+	//var fileReceiverMultimedia = new FileReceiver(app,);
+	Router.initialize({
+		app:app, 
+		server:server,
+		userHttps:config.getUseHttps(),
+		interserverConfiguration:interserverConfiguration,
+		selfHosts :selfHosts,
+		configuration:config.getInterserver()
+	}).then(()=>{
+		afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts);
+	}).catch(error);
 }
-if(hostMe.getClientData()||hostMe.getPageAssets()){
-	console.log(loadBalancingConfiguration);
-	clientDataOrchestratorClient = new ClientDataOrchestratorClient(mysocketsApp.getNConnections, hosts, hostMe, loadBalancingConfiguration, config.getDomain());
-}
-//var fileReceiverMultimedia = new FileReceiver(app,);
-Router.get().initialize({
-	app:app, 
-	server:server,
-	userHttps:config.getUseHttps(),
-	interserverConfiguration:interserverConfiguration,
-	selfHosts :selfHosts,
-	configuration:config.getInterserver()
-});
-if(hostMe.getPageAssets()){
-	pageAssetsOrchestrator = new PageAssetsOrchestrator(hosts, hostMe, filePathIndex, filePathIndexPrecompiled, domain, precompiledFrontend, config.getUseHttps(), config.getGodaddy());
-}
-const ssh2Port = config.getSSH2().getPort();
-FileTransferServer.initialize(ssh2Port);
-FileTransferClient.initialize(ssh2Port);
+function afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts){
+	if(hostMe.getPageAssets()){
+		pageAssetsOrchestrator = new PageAssetsOrchestrator(hosts, hostMe, filePathIndex, filePathIndexPrecompiled, domain, precompiledFrontend, config.getUseHttps(), config.getGodaddy());
+	}
+	const ssh2Port = config.getSSH2().getPort();
+	FileTransferServer.initialize(ssh2Port);
+	FileTransferClient.initialize(ssh2Port);
 
-/*setTimeout(function(){
-	fileTransferClientTest.transfer('./ColourMyWorld.mp4','./ColourMyWorld2.mp4','46.105.84.139', function(){console.log('successful transfer');}, function(){console.log('transfer failed');});
-}, 10000);*/
-UsersRouter.initialize(users);
-Administrator.initialize(config, users);
-Application.initialize(config, users);
-ProfileHandler.initialize(users);
-MultimediaClientUpdateHandler.initialize(users);
-ProfileHelper.initialize(users);
-MultimediaCategoryHelper.initialize(users, ProfileRepository.getByUserIdRaw, ProfileRepository.update);
-var interserverTestHandler = new InterserverTestHandler();
-server.setTimeout(5000, function(r){
-	
-});
-FileDistributionManagerHandler.start();
-if(config.getMultimedia().getDistributionCoordinator()==hostMe.getId())
-	FileDistributionWorker.start(UsersRouter);
-VideoProcessor.notifyHasWaiting();
-//setTimeout(shutdownManager.shutDown, 30000);
+	/*setTimeout(function(){
+		fileTransferClientTest.transfer('./ColourMyWorld.mp4','./ColourMyWorld2.mp4','46.105.84.139', function(){console.log('successful transfer');}, function(){console.log('transfer failed');});
+	}, 10000);*/
+	UsersRouter.initialize(users);
+	Administrator.initialize(config, users);
+	Application.initialize(config, users);
+	ProfileHandler.initialize(users);
+	MultimediaClientUpdateHandler.initialize(users);
+	ProfileHelper.initialize(users);
+	MultimediaCategoryHelper.initialize(users, ProfileRepository.getByUserIdRaw, ProfileRepository.update);
+	var interserverTestHandler = new InterserverTestHandler();
+	server.setTimeout(5000, function(r){
+		
+	});
+	FileDistributionManagerHandler.start();
+	if(config.getMultimedia().getDistributionCoordinator()==hostMe.getId())
+		FileDistributionWorker.start(UsersRouter);
+	VideoProcessor.notifyHasWaiting();
+	//setTimeout(shutdownManager.shutDown, 30000);
 }
 function useHttp(app, callback){
 var didCallback = false;
