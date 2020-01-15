@@ -122,9 +122,7 @@ console.log('d');
 HostHelper.getAndUpdateMe().then(function(hostMe){
 	console.log('e');
 	HostHelper.getHosts().then(function(hosts){
-		Pms.initialize({databaseConfiguration:config.getPmsDatabase(), users:users}).then(()=>{
 			createApp(hosts, hostMe);
-		}).catch(error);
 	}).catch(error);
 }).catch(error);
 
@@ -243,7 +241,9 @@ function serverCreated(app, server, selfHosts, ShutdownManager, hostMe, hosts){
 		selfHosts :selfHosts,
 		configuration:config.getInterserver()
 	}).then(()=>{
-		afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts);
+		Pms.initialize({databaseConfiguration:config.getPmsDatabase(), users:users}).then(()=>{
+			afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts);
+		}).catch(error);
 	}).catch(error);
 }
 function afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts){
