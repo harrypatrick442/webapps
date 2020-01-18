@@ -112,6 +112,8 @@ const precompiledFrontend = config.getPrecompiledFrontend();
 const frontendFolder = path.join(__dirname, '/frontend');
 const filePathIndex = path.join(__dirname, '/../pornsite/frontend/pages/index.html');
 const filePathIndexPrecompiled = path.join(__dirname, '/../pornsite/frontend/precompiled/index.html');
+console.log(config.getCache().getProfiles());
+ProfileRepository.initialize(config.getCache().getProfiles());
 DalFileSystem.initialize(config.getDatabase());
 DalHosts.initialize(config.getDatabase());
 DalProfiles.initialize(config.getDatabase());
