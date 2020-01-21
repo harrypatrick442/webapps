@@ -77,6 +77,8 @@ const Router = InterserverCommunication.Router;
 const InterserverTestHandler = InterserverCommunication.TestHandler;
 const interserverConfiguration = config.getInterserver();
 console.log('b2');
+const Dal = require('dal');
+const DatabaseTypes = Dal.DatabaseTypes;
 const GithubHandler = GithubAutomation.GithubHandler;
 const ClientDataOrchestratorServer = LoadBalancing.ClientDataOrchestratorServer;
 const ClientDataOrchestratorClient = LoadBalancing.ClientDataOrchestratorClient;
@@ -244,7 +246,7 @@ function serverCreated(app, server, selfHosts, ShutdownManager, hostMe, hosts){
 		selfHosts :selfHosts,
 		configuration:config.getInterserver()
 	}).then(()=>{
-		Pms.initialize({databaseConfiguration:config.getPmsDatabase(), users:users}).then(()=>{
+		Pms.initialize({databaseConfiguration:config.getPmsDatabase(), users:users, overflowing:true, databaseType:DatabaseTypes.MYSQL}).then(()=>{
 			afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts);
 		}).catch(error);
 	}).catch(error);
