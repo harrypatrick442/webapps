@@ -45,7 +45,8 @@ const InterserverCommunication=require('interserver_communication');
 const GithubAutomation = require('github_automation');
 const Log = require('log');
 console.log('b22');
-const LoadBalancing = require('load_balancing');
+const {Orchestrators }= require('load_balancing');
+const {AssetsHandler}=require('assets');
 console.log('b33');
 const Shutdown = require('shutdown');
 console.log('b44');
@@ -140,34 +141,6 @@ function createApp(hosts, hostMe){
 		res = handler.process(req);
 		response.json(res);
 	});
-	
-	if(config.getPrecompiledFrontend())
-	{
-		app.use(express.static(path.join(frontendFolder, config.getUseCDNForSources()?'/precompiledCDN':'/precompiled')));
-	}
-	else
-	{
-
-		[Polyfills, TipplerUi, Core, Enums, Multimedia, Mysocket, Strings, Helpers, Pornsite, Pms, config].forEach(function(repository){
-			var scriptsAbsolutePath = repository.getScriptsAbsolutePath(rootPath);
-			console.log(scriptsAbsolutePath);
-			app.use(express.static(scriptsAbsolutePath));
-		});
-		[TipplerUi, AdultProfiles, Pms, Pornsite].forEach(function(repository){
-			var stylesAbsolutePath = repository.getStylesAbsolutePath(rootPath);
-			console.log(stylesAbsolutePath);
-			app.use(express.static(stylesAbsolutePath));
-		});
-		app.use(express.static(path.join(frontendFolder, '/css')));
-		app.use(express.static(path.join(frontendFolder, '/pages')), function(req, res, next){
-			return next();
-		});
-		
-	}
-	var multimediaConfig = config.getMultimedia();
-	app.use(express.static(path.join(frontendFolder, '/images')));
-	app.use(multimediaConfig.getUrlPath(),express.static(path.join(rootPath, config.getMultimedia().getPictures().getFilePath())));
-	app.use(multimediaConfig.getUrlPath(),express.static(path.join(frontendFolder, config.getMultimedia().getVideos().getFilePath())));
 	const indexPath = path.join(__dirname, '/index.js');
 	var watchdogClient= new WatchdogClient(ShutdownManager, indexPath);
 	var githubHandler = new GithubHandler(app, watchdogClient.restartMe);
@@ -215,7 +188,7 @@ function serverCreated(app, server, selfHosts, ShutdownManager, hostMe, hosts){
 	}).catch(error);
 }
 function afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts){
-	orchestrators = new Orchestrators({ 
+	new Orchestrators({ 
 		hosts:hosts,
 		hostMe:hostMe, 
 		sourceScriptsLocally:config.getSourceScriptsLocally(), 
@@ -225,7 +198,14 @@ function afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts){
 		loadBalancingConfiguration:config.getLoadBalancing(),
 		getNConnections:mysocketsApp.getNConnections
 	});
-	
+	new AssetsHandler({
+		precompiledFrontend:config.getPrecompiledFrontend(),
+		frontendFolder:frontendFolder,
+		repositoriesScripts:[Polyfills, TipplerUi, Core, Enums, Multimedia, Mysocket, Strings, Helpers, Pornsite, Pms, config],
+		repositoriesStyles:[TipplerUi, AdultProfiles, Pms, Pornsite],
+		useCdnForSources:config.getUseCDNForSources(),
+		multimediaConfiguration:config.getMultimedia()
+	});
 	const ssh2Port = config.getSSH2().getPort();
 	FileTransferServer.initialize(ssh2Port);
 	FileTransferClient.initialize(ssh2Port);
@@ -240,52 +220,11 @@ function afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts){
 	ProfileHelper.initialize(users);
 	MultimediaCategoryHelper.initialize(users, ProfileRepository.getByUserIdRaw, ProfileRepository.update);
 	var interserverTestHandler = new InterserverTestHandler();
-	server.setTimeout(5000, function(r){
-		
-	});
 	FileDistributionManagerHandler.start();
 	if(config.getMultimedia().getDistributionCoordinator()==hostMe.getId())
 		FileDistributionWorker.start(UsersRouter);
 	VideoProcessor.notifyHasWaiting();
 	//setTimeout(shutdownManager.shutDown, 30000);
-}
-function useHttp(app, callback){
-var didCallback = false;
-var server;
-server = app.listen(80, function(){
-	doCallback();
-}).on('error', doCallback);
-function doCallback(err){
-	if(didCallback)return;
-	didCallback = true;
-	callback(err, server);
-	}
-}
-function useHttps(app, callback){//todo callback
-var didCallback = false;
-var Greenlock = require('greenlock-express');
-var greenlock = Greenlock.create({
-  version: 'draft-11'
-, server: 'https://acme-v02.api.letsencrypt.org/directory'
-, email: 'myflirtbook@gmail.com'     // The email address of the ACME user / hosting provider
-, agreeTos: true                    // You must accept the ToS as the host which handles the certs
-, configDir: '~/.config/acme/'      // Writable directory where certs will be saved
-, communityMember: true             // Join the community to get notified of important updates
-, telemetry: true                   // Contribute telemetry data to the project
-,approvedDomains: [ 'myflirtbook.com', '188.165.10.79', '46.105.84.139' ]
-  // Using your express app:
-  // simply export it as-is, then include it here
-,app: app,
-debug:false
-});
-var server;
-server = greenlock.listen(80, 443, 8080, 8443).on('error', doCallback);//adding the last two ports fixed issue with wss. Probably used 8443.
-doCallback();
-function doCallback(err){
-	if(didCallback)return;
-	didCallback = true;
-	callback(err, server);
-}
 }
 function setupPromises(){
 global.Promise=require('bluebird');
