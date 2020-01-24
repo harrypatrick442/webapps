@@ -18,7 +18,6 @@ global.console.log=function(msg){
 	oldLog(new Error().stack.substr(0, 200));
 };*/
 console.log('a');
-const SIZE_LIMIT_MB=2.5;
 const config = require('configuration');
 const Core = require('core');
 const TipplerUi = require('tippler_ui');
@@ -38,9 +37,6 @@ const Pms = require('pms');
 const Polyfills = require('polyfills');
 const Strings = require('strings');
 const Cache = require('cache');
-const express = require('express');
-const BodyParser = require('middleware').BodyParser;
-const CORS = require('middleware').CORS;
 const Client = require('client');
 const Mysocket = require('mysocket');
 const Enums = require('enums');
@@ -80,9 +76,6 @@ console.log('b2');
 const Dal = require('dal');
 const DatabaseTypes = Dal.DatabaseTypes;
 const GithubHandler = GithubAutomation.GithubHandler;
-const ClientDataOrchestratorServer = LoadBalancing.ClientDataOrchestratorServer;
-const ClientDataOrchestratorClient = LoadBalancing.ClientDataOrchestratorClient;
-const PageAssetsOrchestrator = LoadBalancing.PageAssetsOrchestrator;
 const MultimediaHandler = Multimedia.MultimediaHandler; 
 const DalMultimedia = Multimedia.DalMultimedia;
 const ShutdownManager = Shutdown.ShutdownManager;
@@ -131,7 +124,6 @@ HostHelper.getAndUpdateMe().then(function(hostMe){
 }).catch(error);
 
 var createdServer = false;
-var clientDataOrchestratorClient, pageAssetsOrchestrator;
 
 function createApp(hosts, hostMe){
 	var selfHosts = hosts.where(host=>host.getHostType()==HostTypes.SELF_HOSTED).toList();
@@ -141,37 +133,14 @@ function createApp(hosts, hostMe){
 		//Log.
 	}
 	Lifecycle.StartedAt;
-	const app = express();
-	new BodyParser(app, SIZE_LIMIT_MB);
-	new CORS(app, SIZE_LIMIT_MB);
-	app.get('/', function(req, res, next){
-		console.log('/');
-		if(!pageAssetsOrchestrator||config.getSourceScriptsLocally())return next();
-		pageAssetsOrchestrator.sendIndexPage(res);
-	});
+	//orchestrators = new Orchestrators();
 	app.post('/servlet', function (request, response) {
 		var req = request.body;
 		var res ={type:'failed'};
 		res = handler.process(req);
 		response.json(res);
 	});
-	if(hostMe.getPageAssets()){
-		if(useLocal){
-			var endpointLocal = JSON.stringify({localhost:1});
-			app.get('/endpoints',function(req, res, next){
-				console.log(endpointLocal);
-				res.send(endpointLocal);
-			});
-		}
-		else
-		{
-			app.get('/endpoints',function(req,res,next){
-				if(clientDataOrchestratorClient)
-					res.send(clientDataOrchestratorClient.getEndpointsString());
-				else res.end();
-			});
-		}
-	}
+	
 	if(config.getPrecompiledFrontend())
 	{
 		app.use(express.static(path.join(frontendFolder, config.getUseCDNForSources()?'/precompiledCDN':'/precompiled')));
@@ -229,13 +198,7 @@ function serverCreated(app, server, selfHosts, ShutdownManager, hostMe, hosts){
 	MysocketEndpointWebsocket(mysocketsApp, app, server, '/app/endpoint_websocket');
 	MysocketEndpointLongpoll(mysocketsApp, app, '/app/endpoint_longpoll');
 	var multimediaHandler = new MultimediaHandler(app, config.getMultimedia().getUrlPath());
-	if(hostMe.getOrchestrator()){
-		ClientDataOrchestratorServer.initialize(hosts, hostMe.getId(), config.getLoadBalancing().getClientData());
-	}
-	if(hostMe.getClientData()||hostMe.getPageAssets()){
-		console.log(loadBalancingConfiguration);
-		clientDataOrchestratorClient = new ClientDataOrchestratorClient(mysocketsApp.getNConnections, hosts, hostMe, loadBalancingConfiguration, config.getDomain());
-	}
+	
 	//var fileReceiverMultimedia = new FileReceiver(app,);
 	UsersRouter.initialize(users);
 	Router.initialize({
@@ -252,9 +215,17 @@ function serverCreated(app, server, selfHosts, ShutdownManager, hostMe, hosts){
 	}).catch(error);
 }
 function afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts){
-	if(hostMe.getPageAssets()){
-		pageAssetsOrchestrator = new PageAssetsOrchestrator(hosts, hostMe, filePathIndex, filePathIndexPrecompiled, domain, precompiledFrontend, config.getUseHttps(), config.getGodaddy());
-	}
+	orchestrators = new Orchestrators({ 
+		hosts:hosts,
+		hostMe:hostMe, 
+		sourceScriptsLocally:config.getSourceScriptsLocally(), 
+		useHttps:config.getUseHttps(), 
+		godaddyConfiguration:config.getGodaddy(),
+		domain:config.getDomain(),
+		loadBalancingConfiguration:config.getLoadBalancing(),
+		getNConnections:mysocketsApp.getNConnections
+	});
+	
 	const ssh2Port = config.getSSH2().getPort();
 	FileTransferServer.initialize(ssh2Port);
 	FileTransferClient.initialize(ssh2Port);
