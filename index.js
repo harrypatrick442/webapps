@@ -103,7 +103,7 @@ function serverCreated(){
 }
 function afterRouter(){
 	new Orchestrators({ 
-		hosts:selfHosts
+		hosts:selfHosts,
 		hostMe:hostMe, 
 		sourceScriptsLocally:configuration.getSourceScriptsLocally(), 
 		useHttps:configuration.getUseHttps(), 
