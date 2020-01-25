@@ -186,11 +186,11 @@ function serverCreated(clientServer, selfHosts, ShutdownManager, hostMe, hosts){
 		configuration:config.getInterserver()
 	}).then(()=>{
 		//Pms.initialize({databaseConfiguration:config.getPmsDatabase(), users:users, overflowing:true, databaseType:DatabaseTypes.MYSQL}).then(()=>{
-			afterRouter(mysocketsApp.getNConnections, selfHosts, ShutdownManager, hostMe, hosts);
+			afterRouter(clientServer, mysocketsApp.getNConnections, selfHosts, ShutdownManager, hostMe, hosts);
 		//}).catch(error);
 	}).catch(error);
 }
-function afterRouter(getNConnections, selfHosts, ShutdownManager, hostMe, hosts){
+function afterRouter(clientServer, getNConnections, selfHosts, ShutdownManager, hostMe, hosts){
 	new Orchestrators({ 
 		hosts:hosts,
 		hostMe:hostMe, 
@@ -199,35 +199,41 @@ function afterRouter(getNConnections, selfHosts, ShutdownManager, hostMe, hosts)
 		godaddyConfiguration:config.getGodaddy(),
 		domain:config.getDomain(),
 		loadBalancingConfiguration:config.getLoadBalancing(),
-		getNConnections:getNConnections
-	});
-	new AssetsHandler({
-		precompiledFrontend:config.getPrecompiledFrontend(),
-		frontendFolder:frontendFolder,
-		repositoriesScripts:[Polyfills, TipplerUi, Core, Enums, Multimedia, Mysocket, Strings, Helpers, Pornsite, Pms, config],
-		repositoriesStyles:[TipplerUi, AdultProfiles, Pms, Pornsite],
-		useCdnForSources:config.getUseCDNForSources(),
-		multimediaConfiguration:config.getMultimedia()
-	});
-	const ssh2Port = config.getSSH2().getPort();
-	FileTransferServer.initialize(ssh2Port);
-	FileTransferClient.initialize(ssh2Port);
+		getNConnections:getNConnections,
+		useLocal:useLocal,
+		filePathIndex,
+		filePathIndexPrecompiled, 
+		precompiledFrontend
+	}).then((orchestrators)=>{
+		new AssetsHandler({
+			server:clientServer,
+			precompiledFrontend:config.getPrecompiledFrontend(),
+			frontendFolder:frontendFolder,
+			repositoriesScripts:[Polyfills, TipplerUi, Core, Enums, Multimedia, Mysocket, Strings, Helpers, Pornsite, Pms, config],
+			repositoriesStyles:[TipplerUi, AdultProfiles, Pms, Pornsite],
+			useCdnForSources:config.getUseCDNForSources(),
+			multimediaConfiguration:config.getMultimedia()
+		});
+		const ssh2Port = config.getSSH2().getPort();
+		FileTransferServer.initialize(ssh2Port);
+		FileTransferClient.initialize(ssh2Port);
 
-	/*setTimeout(function(){
-		fileTransferClientTest.transfer('./ColourMyWorld.mp4','./ColourMyWorld2.mp4','46.105.84.139', function(){console.log('successful transfer');}, function(){console.log('transfer failed');});
-	}, 10000);*/
-	Administrator.initialize(config, users);
-	Application.initialize(config, users);
-	ProfileHandler.initialize(users);
-	MultimediaClientUpdateHandler.initialize(users);
-	ProfileHelper.initialize(users);
-	MultimediaCategoryHelper.initialize(users, ProfileRepository.getByUserIdRaw, ProfileRepository.update);
-	var interserverTestHandler = new InterserverTestHandler();
-	FileDistributionManagerHandler.start();
-	if(config.getMultimedia().getDistributionCoordinator()==hostMe.getId())
-		FileDistributionWorker.start(UsersRouter);
-	VideoProcessor.notifyHasWaiting();
-	//setTimeout(shutdownManager.shutDown, 30000);
+		/*setTimeout(function(){
+			fileTransferClientTest.transfer('./ColourMyWorld.mp4','./ColourMyWorld2.mp4','46.105.84.139', function(){console.log('successful transfer');}, function(){console.log('transfer failed');});
+		}, 10000);*/
+		Administrator.initialize(config, users);
+		Application.initialize(config, users);
+		ProfileHandler.initialize(users);
+		MultimediaClientUpdateHandler.initialize(users);
+		ProfileHelper.initialize(users);
+		MultimediaCategoryHelper.initialize(users, ProfileRepository.getByUserIdRaw, ProfileRepository.update);
+		var interserverTestHandler = new InterserverTestHandler();
+		FileDistributionManagerHandler.start();
+		if(config.getMultimedia().getDistributionCoordinator()==hostMe.getId())
+			FileDistributionWorker.start(UsersRouter);
+		VideoProcessor.notifyHasWaiting();
+	}).catch(error);
+		//setTimeout(shutdownManager.shutDown, 30000);
 }
 function setupPromises(){
 global.Promise=require('bluebird');
