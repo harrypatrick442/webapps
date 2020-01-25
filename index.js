@@ -73,10 +73,12 @@ HostHelper.getAndUpdateMe().then(function(hostMeIn){
 		selfHosts = hosts.where(host=>host.getHostType()==HostTypes.SELF_HOSTED).toList();
 		Lifecycle.StartedAt;
 		watchdogClient= new WatchdogClient(ShutdownManager, indexPath);
-		githubHandler = new GithubHandler(watchdogClient.restartMe, hostMe.getICPort());
-		createFirstPort80Server().then((clientServerIn)=>{
-			clientServer = clientServerIn;
-			serverCreated();
+		new GithubHandler(watchdogClient.restartMe, hostMe.getICPort()).then((githubHandlerIn)=>{
+			githubHandler = githubHandlerIn;
+			createFirstPort80Server().then((clientServerIn)=>{
+				clientServer = clientServerIn;
+				serverCreated();
+			}).catch(error);
 		}).catch(error);
 	}).catch(error);
 }).catch(error);
