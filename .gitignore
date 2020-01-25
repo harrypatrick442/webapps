@@ -29,3 +29,5 @@ node_modules/tippler_ui
 node_modules/watchdog
 backend/node_modules
 node_modules
+node_modules/assets
+node_modules/server

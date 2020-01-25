@@ -20,6 +20,7 @@ global.console.log=function(msg){
 console.log('a');
 const config = require('configuration');
 const Core = require('core');
+const Servers = require('server').Servers;
 const TipplerUi = require('tippler_ui');
 if(config.getDebug().getFilePathCase())
 	Core.CaseSensitiveRequire;
@@ -116,6 +117,7 @@ DalProfiles.initialize(config.getDatabase());
 DalMultimedia.initialize(config.getDatabase());
 DalPrecompiledSourceFiles.initialize(config.getDatabase());
 MultimediaHelper.initialize(config);
+Servers.initialize({useHttps:config.getUseHttps()});
 console.log('d');
 HostHelper.getAndUpdateMe().then(function(hostMe){
 	console.log('e');
@@ -135,59 +137,60 @@ function createApp(hosts, hostMe){
 	}
 	Lifecycle.StartedAt;
 	//orchestrators = new Orchestrators();
-	app.post('/servlet', function (request, response) {
+/*	app.post('/servlet', function (request, response) {
 		var req = request.body;
 		var res ={type:'failed'};
 		res = handler.process(req);
 		response.json(res);
-	});
+	});*/
 	const indexPath = path.join(__dirname, '/index.js');
 	var watchdogClient= new WatchdogClient(ShutdownManager, indexPath);
-	var githubHandler = new GithubHandler(app, watchdogClient.restartMe);
-	var timerCreateServerRetry = new Timer({delay:1000, nTicks:-1, callback:function(){
-			config.getUseHttps()?useHttps(app, callback):useHttp(app, callback);
-			function callback(err, server){
-				if(err){
-					console.error(err);
-					console.log('RETURNING WITHOUT STOPPING TIMER OR ANYTHING');
-					return;
-				}
-				timerCreateServerRetry.stop();
-				serverCreated(app, server, selfHosts, ShutdownManager, hostMe, hosts);
-			}
+	var githubHandler = new GithubHandler(watchdogClient.restartMe);
+	createFirstPort80Server().then((clientServer)=>{
+		serverCreated(clientServer, selfHosts, ShutdownManager, hostMe, hosts);
+	}).catch(error);
+	//ShutdownManager.addEventListener('beforeShutdown', timerCreateServerRetry.stop);
+}
+function createFirstPort80Server(){
+	return new Promise((resolve, reject)=>{
+		attempt();
+		function attempt(){
+			Servers.getForPort(80).then((server)=>{
+				resolve(server);
+			}).catch((err)=>{
+				console.error(err);
+				console.log('RETURNING WITHOUT STOPPING TIMER OR ANYTHING');
+				setTimeout(attempt, 1000);
+			});
 		}
 	});
-	timerCreateServerRetry.start();
-	ShutdownManager.addEventListener('beforeShutdown', timerCreateServerRetry.stop);
 }
-function serverCreated(app, server, selfHosts, ShutdownManager, hostMe, hosts){
+function serverCreated(clientServer, selfHosts, ShutdownManager, hostMe, hosts){
 	if(createdServer)return;
 	createdServer = true;
-	ShutdownManager.addServer(server);	
 	var mysocketsAdministrator = new Mysockets(administratorHandler);
 	var mysocketsApp = new Mysockets(ApplicationHandler);
-	MysocketEndpointWebsocket(mysocketsAdministrator, app, server, '/administrator/endpoint_websocket');
-	MysocketEndpointLongpoll(mysocketsAdministrator, app, '/administrator/endpoint_longpoll');
-	MysocketEndpointWebsocket(mysocketsApp, app, server, '/app/endpoint_websocket');
-	MysocketEndpointLongpoll(mysocketsApp, app, '/app/endpoint_longpoll');
-	var multimediaHandler = new MultimediaHandler(app, config.getMultimedia().getUrlPath());
+	MysocketEndpointWebsocket(mysocketsAdministrator, clientServer, '/administrator/endpoint_websocket');
+	MysocketEndpointLongpoll(mysocketsAdministrator, clientServer, '/administrator/endpoint_longpoll');
+	MysocketEndpointWebsocket(mysocketsApp, clientServer, '/app/endpoint_websocket');
+	MysocketEndpointLongpoll(mysocketsApp, clientServer, '/app/endpoint_longpoll');
+	var multimediaHandler = new MultimediaHandler(clientServer, config.getMultimedia().getUrlPath());
 	
 	//var fileReceiverMultimedia = new FileReceiver(app,);
 	UsersRouter.initialize(users);
 	Router.initialize({
-		app:app, 
-		server:server,
+		server:clientServer,
 		userHttps:config.getUseHttps(),
 		interserverConfiguration:interserverConfiguration,
 		selfHosts :selfHosts,
 		configuration:config.getInterserver()
 	}).then(()=>{
-		Pms.initialize({databaseConfiguration:config.getPmsDatabase(), users:users, overflowing:true, databaseType:DatabaseTypes.MYSQL}).then(()=>{
-			afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts);
-		}).catch(error);
+		//Pms.initialize({databaseConfiguration:config.getPmsDatabase(), users:users, overflowing:true, databaseType:DatabaseTypes.MYSQL}).then(()=>{
+			afterRouter(mysocketsApp.getNConnections, selfHosts, ShutdownManager, hostMe, hosts);
+		//}).catch(error);
 	}).catch(error);
 }
-function afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts){
+function afterRouter(getNConnections, selfHosts, ShutdownManager, hostMe, hosts){
 	new Orchestrators({ 
 		hosts:hosts,
 		hostMe:hostMe, 
@@ -196,7 +199,7 @@ function afterRouter(app, server, selfHosts, ShutdownManager, hostMe, hosts){
 		godaddyConfiguration:config.getGodaddy(),
 		domain:config.getDomain(),
 		loadBalancingConfiguration:config.getLoadBalancing(),
-		getNConnections:mysocketsApp.getNConnections
+		getNConnections:getNConnections
 	});
 	new AssetsHandler({
 		precompiledFrontend:config.getPrecompiledFrontend(),
