@@ -62,7 +62,6 @@ Servers.initialize({
 	useHttps:configuration.getUseHttps(),
 	autoKillToFreePorts:true
 });
-
 var hostMe,selfHosts, watchdogClient,githubHandler, clientServer,
 	hosts,mysocketsAdministrator,mysocketsApp;
 if(configuration.getConsoleTapEnabled()){
