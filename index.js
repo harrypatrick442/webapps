@@ -58,7 +58,10 @@ DalProfiles.initialize(configuration.getDatabase());
 DalMultimedia.initialize(configuration.getDatabase());
 DalPrecompiledSourceFiles.initialize(configuration.getDatabase());
 MultimediaHelper.initialize(configuration);
-Servers.initialize({useHttps:configuration.getUseHttps()});
+Servers.initialize({
+	useHttps:configuration.getUseHttps(),
+	autoKillToFreePorts:true
+});
 
 var hostMe,selfHosts, watchdogClient,githubHandler, clientServer,
 	hosts,mysocketsAdministrator,mysocketsApp;
