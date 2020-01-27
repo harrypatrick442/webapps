@@ -57,7 +57,7 @@ DalHosts.initialize(configuration.getDatabase());
 DalProfiles.initialize(configuration.getDatabase());
 DalMultimedia.initialize(configuration.getDatabase());
 DalPrecompiledSourceFiles.initialize(configuration.getDatabase());
-MultimediaHelper.initialize(configuration);
+MultimediaHelper.initialize(configuration); 
 Servers.initialize({
 	useHttps:configuration.getUseHttps(),
 	autoKillToFreePorts:true
