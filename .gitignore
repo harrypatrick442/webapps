@@ -60,3 +60,5 @@ node_modules/watchdog
 backend/node_modules/watchdog
 backend/node_modules
 node_modules
+node_modules/client_data
+backend/node_modules/client_data

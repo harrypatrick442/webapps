@@ -19,7 +19,7 @@ else
 {
 	var hostMeId = process.env.hostMeId;
 	console.log(`Worker ${process.pid} started with hostMeId ${hostMeId}`);
-	require('./backend/webapps.js');
+	require('./backend/Webapps.js');
 }
 function fork(hostMeId){
     const worker = cluster.fork({hostMeId:hostMeId});
