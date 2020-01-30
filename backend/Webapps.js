@@ -1,4 +1,5 @@
 'use strict';
+const hostMeId = parseInt(process.env.hostMeId);
 setupPromises();
 setupUncaughtExceptionHandling();
 const configuration = require('configuration');
@@ -68,7 +69,8 @@ if(configuration.getConsoleTapEnabled()){
 	Log.ConsoleTap;
 	console.log('WARNING: console tap enabled');
 }
-HostHelper.getAndUpdateMe().then(function(hostMeIn){
+console.log(typeof(hostMeId));
+HostHelper.updateMe(hostMeId).then(function(hostMeIn){
 	hostMe = hostMeIn;
 	HostHelper.getHosts().then(function(hostsIn){
 		hosts = hostsIn;
