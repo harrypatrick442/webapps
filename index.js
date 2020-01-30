@@ -18,8 +18,8 @@ if (cluster.isMaster) {
 else 
 {
 	var hostMeId = process.env.hostMeId;
-  console.log(`Worker ${process.pid} started with hostMeId ${hostMeId}`);
-  setTimeout(()=>{process.exit();},5000);
+	console.log(`Worker ${process.pid} started with hostMeId ${hostMeId}`);
+	require('./backend/webapps.js');
 }
 function fork(hostMeId){
     const worker = cluster.fork({hostMeId:hostMeId});
