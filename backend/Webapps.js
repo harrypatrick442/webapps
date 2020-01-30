@@ -49,7 +49,7 @@ const {AdministratorHandler,ApplicationHandler, Administrator,Application}=Porns
 const {Servers, Endpoint}=Server;
 const precompiledFrontend = configuration.getPrecompiledFrontend();
 
-const frontendFolder = path.join(__dirname, '/frontend'),filePathIndex = path.join(__dirname, '/../pornsite/frontend/pages/index.html'),
+const frontendFolder = path.join(__dirname, '/../frontend'),filePathIndex = path.join(__dirname, '/../pornsite/frontend/pages/index.html'),
 indexPath = path.join(__dirname, '/index.js'), filePathIndexPrecompiled = path.join(__dirname, '/../pornsite/frontend/precompiled/index.html'),
  domain = configuration.getDomain();
  
