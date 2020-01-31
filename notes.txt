@@ -1,1 +1,9 @@
 https://linoxide.com/linux-how-to/tools-enable-remote-desktop-access-rhel-centos-7/
+admin
+000
+unmerged files?
+git fetch origin
+git reste --hard origin/master
+
+on that branch.
+
