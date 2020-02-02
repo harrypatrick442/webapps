@@ -38,7 +38,7 @@ const DatabaseTypes = Dal.DatabaseTypes;
 const GithubHandler = GithubAutomation.GithubHandler;
 const {MultimediaHandler,DalMultimedia,VideoProcessor,MultimediaClientUpdateHandler} = Multimedia;
 const ShutdownManager = Shutdown.ShutdownManager;
-const {DalHosts,HostHelper} = Hosts;
+const {DalHosts, DalHostPairings, HostHelper} = Hosts;
 const HostTypes = Enums.HostTypes;
 const {FileTransferServer,FileTransferClient,FileDistributionManagerHandler,FileDistributionWorker}= FileTransfer;
 const DalFileSystem = FileSystem.DalFileSystem;
@@ -56,6 +56,7 @@ indexPath = path.join(__dirname, '/index.js'), filePathIndexPrecompiled = path.j
 ProfileRepository.initialize(configuration.getCache().getProfiles());
 DalFileSystem.initialize(configuration.getDatabase());
 DalHosts.initialize(configuration.getHostsDatabase(), DatabaseTypes.MYSQL);
+DalHostPairings.initialize(configuration.getHostsDatabase(), DatabaseTypes.MYSQL);
 DalProfiles.initialize(configuration.getDatabase());
 DalMultimedia.initialize(configuration.getDatabase());
 DalPrecompiledSourceFiles.initialize(configuration.getDatabase());
