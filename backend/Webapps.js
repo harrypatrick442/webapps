@@ -100,7 +100,8 @@ function part2(){
 				websocketRoute:'/app/endpoint_websocket',
 				longpollRoute:'/app/endpoint_longpoll',
 				handler:ApplicationHandler
-			})
+			},
+			EChat.getClientDataEndpoint())
 		]
 	}).then((clientDataHandlerIn)=>{
 		clientDataHandler=clientDataHandlerIn;
